@@ -1,0 +1,61 @@
+let firstCard = null;
+let secondCard = null;
+let lockBoard = false; // Para evitar que o jogador clique durante a animação
+
+// Embaralha o array
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+// Cria o tabuleiro do jogo
+function createBoard() {
+  grid.innerHTML = ""; // Limpa o grid
+  const shuffledCards = shuffle([...cardValues]); // Embaralha os valores das cartas
+  shuffledCards.forEach((value) => {
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.dataset.value = value;
+    card.addEventListener("click", flipCard);
+    grid.appendChild(card);
+  });
+}
+
+// Função para virar a carta
+function flipCard() {
+  if (lockBoard) return;
+  if (this === firstCard) return;
+
+  this.classList.add("flipped");
+
+  if (!firstCard) {
+    firstCard = this;
+  } else {
+    secondCard = this;
+    checkMatch();
+  }
+}
+
+// Função para verificar se as cartas combinam
+function checkMatch() {
+  lockBoard = true;
+  if (firstCard.dataset.value === secondCard.dataset.value) {
+    firstCard.classList.add("matched");
+    secondCard.classList.add("matched");
+    resetCards();
+  } else {
+    // Adiciona o tempo para desvirar as cartas se não forem iguais
+    setTimeout(() => {
+      firstCard.classList.remove("flipped");
+      secondCard.classList.remove("flipped");
+      resetCards();
+    }, 1000);
+  }
+}
+
+function resetCards() {
+  [firstCard, secondCard] = [null, null];
+  lockBoard = false;
+}
+
+restartButton.addEventListener("click", createBoard);
+createBoard();
